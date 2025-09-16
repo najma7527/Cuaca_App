@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 30),
-                Image.asset('assets/newlogo.png'),
+                Image.asset('assets/logo.svg'),
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: nameController,
@@ -108,8 +108,11 @@ class _LoginPageState extends State<LoginPage> {
                         );
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) =>
-                                DetailWheater(value: nameValue),
+                            builder: (context) => DetailWheater(
+                              value: nameValue,
+                              email: emailController.text.trim(),
+                              password: passwordController.text.trim(),
+                            ),
                           ),
                         );
                       } catch (e) {

@@ -35,7 +35,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
                 const SizedBox(height: 30),
-                Image.asset('assets/newlogo.png'),
+                Image.asset('assets/logo.svg'),
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: nameController,
