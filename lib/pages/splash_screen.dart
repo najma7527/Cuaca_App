@@ -28,11 +28,11 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/logo.svg', width: 120),
-            const SizedBox(height: 20),
+            Image.asset('assets/newlogo.png', width: 150),
+            const SizedBox(height: 40),
             const Text(
               'Aplikasi Cuaca',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
             const CircularProgressIndicator(),

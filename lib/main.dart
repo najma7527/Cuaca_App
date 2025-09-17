@@ -7,10 +7,9 @@ import 'pages/riwayat_pencarian_page.dart';
 import 'pages/favorit_kota_page.dart';
 import 'pages/tentang_aplikasi_page.dart';
 import 'pages/bantuan_faq_page.dart';
-import 'pages/detail_kota_page.dart';
 import 'pages/tambah_kota_page.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'firebase_options.dart'; // Hasil generate dari FlutterFire CLI
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,7 +64,6 @@ class _MyAppState extends State<MyApp> {
         '/favorit': (context) => FavoritKotaPage(userId: ''),
         '/tentang': (context) => const TentangAplikasiPage(),
         '/faq': (context) => const BantuanFaqPage(),
-        '/detailkota': (context) => const DetailKotaPage(kota: ''),
         '/tambahkota': (context) => const TambahKotaPage(),
       },
     );

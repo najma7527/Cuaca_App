@@ -27,7 +27,14 @@ class RiwayatPencarianPage extends StatelessWidget {
             children: snapshot.data!.docs.map((doc) {
               final data = doc.data() as Map<String, dynamic>;
               return ListTile(
-                title: Text(data['kota'] ?? '-'),
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(child: Text(data['kota'] ?? '-')),
+                    Text(data['cuaca'] ?? '-',
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ],
+                ),
                 subtitle: Text(data['waktu'] != null
                     ? DateTime.fromMillisecondsSinceEpoch(data['waktu'])
                         .toString()

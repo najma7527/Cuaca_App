@@ -8,7 +8,6 @@ import 'riwayat_pencarian_page.dart';
 import 'favorit_kota_page.dart';
 import 'tentang_aplikasi_page.dart';
 import 'bantuan_faq_page.dart';
-import 'detail_kota_page.dart';
 import 'tambah_kota_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -31,11 +30,12 @@ class _DetailWheaterState extends State<DetailWheater> {
 
   String? namaKota = '';
   bool isFetch = false;
+  bool isLoading = false;
+  String? errorMessage;
 
   @override
   void initState() {
     super.initState();
-    // If you want to pre-fill the search field with a value
     if (widget.value != null) {
       controller.text = widget.value!;
       namaKota = widget.value;
@@ -61,6 +61,58 @@ class _DetailWheaterState extends State<DetailWheater> {
     decimal = decimal.substring(
         0, decimal.length < afterDecimal ? decimal.length : afterDecimal);
     return '${parts[0]}.$decimal';
+  }
+
+  Future<void> _searchWeather() async {
+    if (formKey.currentState!.validate()) {
+      setState(() {
+        isLoading = true;
+        isFetch = false;
+        errorMessage = null;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Memproses data...')),
+      );
+
+      try {
+        Weather fetchedWeather = await dataService.fetchData(controller.text);
+
+        setState(() {
+          weather = fetchedWeather;
+          namaKota = controller.text;
+          isFetch = true;
+          isLoading = false;
+        });
+
+        // Simpan ke Firestore riwayat pencarian
+        try {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(widget.email ?? '')
+              .collection('riwayat_pencarian')
+              .add({
+            'kota': controller.text,
+            'cuaca': weather.temp != null
+                ? '${suhuToStringAsFixed((weather.temp! - 32) * 5 / 9, 2)} °C'
+                : '',
+            'waktu': DateTime.now().millisecondsSinceEpoch,
+          });
+        } catch (e) {
+          print('Gagal simpan riwayat: $e');
+        }
+      } catch (e) {
+        setState(() {
+          isLoading = false;
+          isFetch = false;
+          errorMessage = e.toString();
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
   }
 
   @override
@@ -180,34 +232,79 @@ class _DetailWheaterState extends State<DetailWheater> {
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        'Selamat ${greetingMessage()}, ${widget.value}!',
+                        'Selamat ${greetingMessage()}, ${widget.value ?? "User"}!',
                         style: const TextStyle(
                             fontWeight: FontWeight.w500, fontSize: 22),
                       ),
                       const SizedBox(height: 30),
-                      TextFormField(
-                        controller: controller,
-                        onChanged: (text) {
-                          setState(() {
-                            namaKota = text;
-                          });
-                        },
-                        validator: (value) => value == null || value.isEmpty
-                            ? 'Kota harus diisi.'
-                            : null,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        decoration: InputDecoration(
-                            filled: true,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
-                              borderSide: BorderSide.none,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: controller,
+                              onChanged: (text) {
+                                setState(() {
+                                  namaKota = text;
+                                });
+                              },
+                              validator: (value) =>
+                                  value == null || value.isEmpty
+                                      ? 'Kota harus diisi.'
+                                      : null,
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
+                              decoration: InputDecoration(
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  hintText: 'Masukkan nama kota',
+                                  isDense: true,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 16,
+                                  )),
                             ),
-                            hintText: 'Masukkan nama kota',
-                            isDense: true,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 16,
-                            )),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.favorite_border,
+                                color: Colors.red),
+                            tooltip: 'Favoritkan kota',
+                            onPressed: () async {
+                              if (controller.text.isNotEmpty) {
+                                try {
+                                  await FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(widget.email ?? '')
+                                      .collection('favorit_kota')
+                                      .add({
+                                    'kota': controller.text,
+                                    'waktu':
+                                        DateTime.now().millisecondsSinceEpoch,
+                                  });
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'Kamu memfavoritkan kota ${controller.text}')),
+                                  );
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'Gagal memfavoritkan kota: $e')),
+                                  );
+                                }
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                          'Masukkan nama kota terlebih dahulu!')),
+                                );
+                              }
+                            },
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 10),
                       ElevatedButton(
@@ -220,91 +317,100 @@ class _DetailWheaterState extends State<DetailWheater> {
                                     borderRadius: BorderRadius.circular(18.0),
                                     side: BorderSide(
                                         color: Colors.blueAccent.shade200)))),
-                        onPressed: () async {
-                          if (formKey.currentState!.validate()) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Memproses data')),
-                            );
-                            isFetch = true;
-                            weather =
-                                await dataService.fetchData(controller.text);
-                            // Simpan ke Firestore
-                            try {
-                              await FirebaseFirestore.instance
-                                  .collection('users')
-                                  .doc(widget.email ?? '')
-                                  .collection('riwayat_pencarian')
-                                  .add({
-                                'kota': controller.text,
-                                'cuaca': isFetch && weather.temp != null
-                                    ? '${suhuToStringAsFixed((weather.temp! - 32) * 5 / 9, 2)} °C'
-                                    : '',
-                                'waktu': DateTime.now().millisecondsSinceEpoch,
-                              });
-                            } catch (e) {
-                              print('Gagal simpan riwayat: $e');
-                            }
-                            setState(() {});
-                          }
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 25, vertical: 10),
-                          child: Text('Cari'),
-                        ),
+                        onPressed: isLoading ? null : _searchWeather,
+                        child: isLoading
+                            ? const Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 25, vertical: 10),
+                                child: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              )
+                            : const Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 25, vertical: 10),
+                                child: Text('Cari'),
+                              ),
                       )
                     ],
                   ),
                 ),
                 const SizedBox(height: 30),
-                isFetch && weather.temp != null
-                    ? Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: Colors.blue,
-                          boxShadow: const [
-                            BoxShadow(color: Colors.blue, spreadRadius: 3),
-                          ],
-                        ),
-                        width: double.infinity,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 30),
-                          child: Column(
-                            children: [
-                              Text(
-                                'Kota $namaKota',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 18,
-                                    color: Colors.white),
-                              ),
-                              weather.icon != null
-                                  ? Image.network(
-                                      'http://openweathermap.org/img/wn/${weather.icon}@2x.png')
-                                  : const Icon(Icons.image_not_supported,
-                                      size: 100, color: Colors.white),
-                              Text(
-                                '${suhuToStringAsFixed(suhu, 2)} °C',
-                                style: const TextStyle(
-                                    fontSize: 44,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white),
-                              ),
-                              Text(
-                                weather.description ?? '',
-                                style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white),
-                              ),
-                            ],
+
+                // Loading indicator
+                if (isLoading) const CircularProgressIndicator(),
+
+                // Error message
+                if (errorMessage != null)
+                  Text(
+                    errorMessage!,
+                    style: const TextStyle(color: Colors.red, fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+
+                // Weather data display
+                if (isFetch && weather.temp != null)
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.blue,
+                      boxShadow: const [
+                        BoxShadow(color: Colors.blue, spreadRadius: 3),
+                      ],
+                    ),
+                    width: double.infinity,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 30),
+                      child: Column(
+                        children: [
+                          Text(
+                            'Kota ${weather.name ?? namaKota}',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 18,
+                                color: Colors.white),
                           ),
-                        ),
-                      )
-                    : const Text(
-                        'Silakan masukkan nama kota terlebih dahulu!',
-                        style: TextStyle(color: Colors.black),
+                          const SizedBox(height: 10),
+                          weather.icon != null
+                              ? Image.network(
+                                  'http://openweathermap.org/img/wn/${weather.icon}@2x.png',
+                                  width: 100,
+                                  height: 100,
+                                )
+                              : const Icon(Icons.image_not_supported,
+                                  size: 100, color: Colors.white),
+                          const SizedBox(height: 10),
+                          Text(
+                            '${suhuToStringAsFixed(suhu, 2)} °C',
+                            style: const TextStyle(
+                                fontSize: 44,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            weather.description ?? 'Tidak ada deskripsi',
+                            style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white),
+                          ),
+                        ],
                       ),
+                    ),
+                  )
+                else if (!isLoading && !isFetch)
+                  const Text(
+                    'Silakan masukkan nama kota terlebih dahulu!',
+                    style: TextStyle(color: Colors.black, fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+
                 const SizedBox(height: 40),
               ],
             ),

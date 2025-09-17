@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 30),
-                Image.asset('assets/logo.svg'),
+                Image.asset('assets/newlogo.png'),
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: nameController,
