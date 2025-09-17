@@ -12,15 +12,14 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final formKey = GlobalKey<FormState>();
-  final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
-  String? nameValue;
+  bool _obscurePassword = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -33,36 +32,24 @@ class _LoginPageState extends State<LoginPage> {
                   'Selamat Datang di Aplikasi Cuaca',
                   style: TextStyle(
                     fontSize: 20,
-                    color: Colors.blueAccent.shade700,
+                    color: Colors.blue[700],
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 30),
-                Image.asset('assets/newlogo.png'),
+                Image.asset('assets/newlogo.png', height: 150),
                 const SizedBox(height: 20),
                 TextFormField(
-                  controller: nameController,
-                  decoration: const InputDecoration(
-                    hintText: 'Nama',
-                    filled: true,
-                    border: OutlineInputBorder(borderSide: BorderSide.none),
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  ),
-                  onChanged: (text) => nameValue = text,
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Nama harus diisi.'
-                      : null,
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
                   controller: emailController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: 'Email',
                     filled: true,
-                    border: OutlineInputBorder(borderSide: BorderSide.none),
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    fillColor: Colors.grey[100],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 16),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -76,13 +63,29 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 10),
                 TextFormField(
                   controller: passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
+                  obscureText: _obscurePassword,
+                  decoration: InputDecoration(
                     hintText: 'Password',
                     filled: true,
-                    border: OutlineInputBorder(borderSide: BorderSide.none),
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    fillColor: Colors.grey[100],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 16),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: Colors.blue[700],
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    ),
                   ),
                   validator: (value) => value == null || value.length < 6
                       ? 'Password minimal 6 karakter.'
@@ -91,10 +94,12 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent.shade200,
+                    backgroundColor: Colors.blue[700],
+                    foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18.0),
+                      borderRadius: BorderRadius.circular(10),
                     ),
+                    minimumSize: const Size(double.infinity, 50),
                   ),
                   onPressed: () async {
                     if (formKey.currentState!.validate()) {
@@ -106,12 +111,10 @@ class _LoginPageState extends State<LoginPage> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Login Berhasil')),
                         );
-                        Navigator.of(context).push(
+                        Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
                             builder: (context) => DetailWheater(
-                              value: nameValue,
                               email: emailController.text.trim(),
-                              password: passwordController.text.trim(),
                             ),
                           ),
                         );
@@ -123,10 +126,7 @@ class _LoginPageState extends State<LoginPage> {
                       }
                     }
                   },
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-                    child: Text('Login'),
-                  ),
+                  child: const Text('Login'),
                 ),
                 TextButton(
                   onPressed: () {
@@ -136,7 +136,10 @@ class _LoginPageState extends State<LoginPage> {
                           builder: (context) => const RegisterPage()),
                     );
                   },
-                  child: const Text("Belum punya akun? Daftar di sini"),
+                  child: Text(
+                    "Belum punya akun? Daftar di sini",
+                    style: TextStyle(color: Colors.blue[700]),
+                  ),
                 ),
               ],
             ),

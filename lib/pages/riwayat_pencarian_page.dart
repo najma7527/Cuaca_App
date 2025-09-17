@@ -8,7 +8,12 @@ class RiwayatPencarianPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Riwayat Pencarian Cuaca')),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('Riwayat Pencarian Cuaca'),
+        backgroundColor: Colors.blue[700],
+        foregroundColor: Colors.white,
+      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('users')

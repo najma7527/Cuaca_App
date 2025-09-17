@@ -30,7 +30,12 @@ class _TambahKotaPageState extends State<TambahKotaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tambah Kota Baru')),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('Tambah Kota'),
+        backgroundColor: Colors.blue[700],
+        foregroundColor: Colors.white,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Form(

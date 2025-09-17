@@ -8,7 +8,12 @@ class FavoritKotaPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Kota Favorit')),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('Kota Favorit'),
+        backgroundColor: Colors.blue[700],
+        foregroundColor: Colors.white,
+      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('users')

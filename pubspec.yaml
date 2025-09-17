@@ -42,6 +42,7 @@ dependencies:
   cloud_firestore: ^6.0.0
   firebase_core_web: ^3.0.0
   flutterfire_cli: ^1.2.0
+  image_picker: ^1.2.0
  
 
 dev_dependencies:

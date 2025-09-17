@@ -10,6 +10,7 @@ import 'tentang_aplikasi_page.dart';
 import 'bantuan_faq_page.dart';
 import 'tambah_kota_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'sidebar.dart';
 
 class DetailWheater extends StatefulWidget {
   final String? value;
@@ -123,90 +124,69 @@ class _DetailWheaterState extends State<DetailWheater> {
     }
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Detail Cuaca'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person),
-            tooltip: 'Profil',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ProfilePage(
-                    name: widget.value ?? '',
-                    email: widget.email ?? '',
-                    password: widget.password ?? '',
-                  ),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            tooltip: 'Pengaturan',
-            onPressed: () {
-              Navigator.pushNamed(context, '/settings');
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.history),
-            tooltip: 'Riwayat Pencarian',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      RiwayatPencarianPage(userId: widget.email ?? ''),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.favorite),
-            tooltip: 'Favorit Kota',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      FavoritKotaPage(userId: widget.email ?? ''),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.info),
-            tooltip: 'Tentang Aplikasi',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const TentangAplikasiPage(),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.help),
-            tooltip: 'Bantuan/FAQ',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const BantuanFaqPage(),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.feedback),
-            tooltip: 'Feedback/Saran',
-            onPressed: () {
-              Navigator.pushNamed(context, '/feedback');
-            },
-          ),
-        ],
+        backgroundColor: Colors.blue[700],
+        foregroundColor: Colors.white,
+      ),
+      drawer: Sidebar(
+        userName: widget.email?.split('@').first ?? 'User',
+        userEmail: widget.email ?? '',
+        onProfileSelected: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProfilePage(
+                name: widget.value ?? '',
+                email: widget.email ?? '',
+                password: widget.password ?? '',
+              ),
+            ),
+          );
+        },
+        onSettingsSelected: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  SettingsPage(isDarkMode: false, onThemeChanged: (v) {}),
+            ),
+          );
+        },
+        onHistorySelected: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  RiwayatPencarianPage(userId: widget.email ?? ''),
+            ),
+          );
+        },
+        onFavoritesSelected: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FavoritKotaPage(userId: widget.email ?? ''),
+            ),
+          );
+        },
+        onAboutSelected: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const TentangAplikasiPage(),
+            ),
+          );
+        },
+        onHelpSelected: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const BantuanFaqPage(),
+            ),
+          );
+        },
       ),
       body: SafeArea(
         child: SingleChildScrollView(
