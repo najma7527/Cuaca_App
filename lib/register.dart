@@ -134,7 +134,10 @@ class _RegisterPageState extends State<RegisterPage> {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const LoginPage()),
+                              builder: (context) => LoginPage(
+                                    username: nameController.text.trim(),
+                                    email: emailController.text.trim(),
+                                  )),
                         );
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(

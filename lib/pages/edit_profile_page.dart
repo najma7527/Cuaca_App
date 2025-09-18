@@ -98,7 +98,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue[700],
+      backgroundColor: Colors.blue[50],
       appBar: AppBar(
         backgroundColor: Colors.blue[700],
         foregroundColor: Colors.white,
@@ -120,85 +120,119 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    CircleAvatar(
-                      radius: 70,
-                      backgroundColor: Colors.blue[200],
-                      backgroundImage: _profileImage != null
-                          ? FileImage(_profileImage!)
-                          : null,
-                      child: _profileImage == null
-                          ? const Icon(Icons.person,
-                              size: 70, color: Colors.white)
-                          : null,
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: MediaQuery.of(context).size.width / 2 - 70,
-                      child: GestureDetector(
-                        onTap: _showImagePickerDialog,
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(color: Colors.black12, blurRadius: 4)
-                            ],
-                          ),
-                          child: const Icon(Icons.camera_alt,
-                              color: Colors.blue, size: 28),
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: [
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 60,
+                    backgroundColor: Colors.blue[200],
+                    backgroundImage: _profileImage != null
+                        ? FileImage(_profileImage!)
+                        : null,
+                    child: _profileImage == null
+                        ? const Icon(Icons.person,
+                            size: 60, color: Colors.white)
+                        : null,
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: GestureDetector(
+                      onTap: _showImagePickerDialog,
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(color: Colors.black12, blurRadius: 4)
+                          ],
                         ),
+                        child: const Icon(Icons.camera_alt,
+                            color: Colors.blue, size: 22),
                       ),
                     ),
-                  ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
+              Card(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
+                elevation: 2,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: TextFormField(
+                    controller: _nameController,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.blue),
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      hintText: 'Nama Lengkap',
+                      prefixIcon: Icon(Icons.person, color: Colors.blue),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Nama harus diisi';
+                      }
+                      return null;
+                    },
+                  ),
                 ),
-                const SizedBox(height: 32),
-                Card(
-                  color: Colors.blue[50],
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                  child: ListTile(
-                    leading: const Icon(Icons.person, color: Colors.blue),
-                    title: TextFormField(
-                      controller: _nameController,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Nama Lengkap',
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Nama harus diisi';
-                        }
-                        return null;
-                      },
+              ),
+              const SizedBox(height: 16),
+              Card(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
+                elevation: 2,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: TextFormField(
+                    initialValue: widget.email,
+                    enabled: false,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.blue),
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      hintText: 'Email',
+                      prefixIcon: Icon(Icons.email, color: Colors.blue),
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
-                Card(
-                  color: Colors.blue[50],
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                  child: ListTile(
-                    leading: const Icon(Icons.email, color: Colors.blue),
-                    title: Text(widget.email,
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: const Text('Email'),
+              ),
+              const SizedBox(height: 16),
+              Card(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
+                elevation: 2,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: TextFormField(
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      hintText: 'Password',
+                      prefixIcon: Icon(Icons.lock, color: Colors.blue),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 32),
-                ElevatedButton(
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       Navigator.pop(context, {
@@ -208,19 +242,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.blue[700],
-                    minimumSize: const Size(double.infinity, 50),
+                    backgroundColor: Colors.blue[700],
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16)),
-                    side: const BorderSide(color: Colors.blue, width: 2),
                     textStyle: const TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   child: const Text('Simpan Perubahan'),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

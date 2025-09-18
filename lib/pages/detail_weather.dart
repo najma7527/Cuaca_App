@@ -8,7 +8,6 @@ import 'riwayat_pencarian_page.dart';
 import 'favorit_kota_page.dart';
 import 'tentang_aplikasi_page.dart';
 import 'bantuan_faq_page.dart';
-import 'tambah_kota_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'sidebar.dart';
 
@@ -16,8 +15,10 @@ class DetailWheater extends StatefulWidget {
   final String? value;
   final String? email;
   final String? password;
+  final String? username;
 
-  DetailWheater({super.key, this.value, this.email, this.password});
+  DetailWheater(
+      {super.key, this.value, this.email, this.password, this.username});
 
   @override
   State<DetailWheater> createState() => _DetailWheaterState();
@@ -33,6 +34,7 @@ class _DetailWheaterState extends State<DetailWheater> {
   bool isFetch = false;
   bool isLoading = false;
   String? errorMessage;
+  bool isFavorited = false;
 
   @override
   void initState() {
@@ -68,39 +70,27 @@ class _DetailWheaterState extends State<DetailWheater> {
     if (formKey.currentState!.validate()) {
       setState(() {
         isLoading = true;
-        isFetch = false;
         errorMessage = null;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Memproses data...')),
-      );
-
       try {
-        Weather fetchedWeather = await dataService.fetchData(controller.text);
-
+        final result = await dataService.fetchData(controller.text);
         setState(() {
-          weather = fetchedWeather;
-          namaKota = controller.text;
+          weather = result;
           isFetch = true;
           isLoading = false;
         });
 
-        // Simpan ke Firestore riwayat pencarian
-        try {
+        // Save to search history
+        if (widget.email != null) {
           await FirebaseFirestore.instance
               .collection('users')
-              .doc(widget.email ?? '')
+              .doc(widget.email)
               .collection('riwayat_pencarian')
               .add({
             'kota': controller.text,
-            'cuaca': weather.temp != null
-                ? '${suhuToStringAsFixed((weather.temp! - 32) * 5 / 9, 2)} °C'
-                : '',
             'waktu': DateTime.now().millisecondsSinceEpoch,
           });
-        } catch (e) {
-          print('Gagal simpan riwayat: $e');
         }
       } catch (e) {
         setState(() {
@@ -131,7 +121,7 @@ class _DetailWheaterState extends State<DetailWheater> {
         foregroundColor: Colors.white,
       ),
       drawer: Sidebar(
-        userName: widget.email?.split('@').first ?? 'User',
+        userName: widget.username ?? widget.email?.split('@').first ?? 'User',
         userEmail: widget.email ?? '',
         onProfileSelected: () {
           Navigator.push(
@@ -248,8 +238,12 @@ class _DetailWheaterState extends State<DetailWheater> {
                             ),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.favorite_border,
-                                color: Colors.red),
+                            icon: Icon(
+                              isFavorited
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color: isFavorited ? Colors.red : Colors.grey,
+                            ),
                             tooltip: 'Favoritkan kota',
                             onPressed: () async {
                               if (controller.text.isNotEmpty) {
@@ -262,6 +256,9 @@ class _DetailWheaterState extends State<DetailWheater> {
                                     'kota': controller.text,
                                     'waktu':
                                         DateTime.now().millisecondsSinceEpoch,
+                                  });
+                                  setState(() {
+                                    isFavorited = true;
                                   });
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(

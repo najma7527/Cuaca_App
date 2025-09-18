@@ -4,7 +4,9 @@ import 'package:cuaca_app/pages/detail_weather.dart';
 import 'register.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final String? username;
+  final String? email;
+  const LoginPage({super.key, this.username, this.email});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -15,9 +17,11 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   bool _obscurePassword = true;
+  String? username;
 
   @override
   Widget build(BuildContext context) {
+    username = widget.username;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -115,6 +119,7 @@ class _LoginPageState extends State<LoginPage> {
                           MaterialPageRoute(
                             builder: (context) => DetailWheater(
                               email: emailController.text.trim(),
+                              username: username ?? '',
                             ),
                           ),
                         );

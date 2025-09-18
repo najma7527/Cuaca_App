@@ -10,6 +10,8 @@ import 'pages/bantuan_faq_page.dart';
 import 'pages/tambah_kota_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'firebase_options.dart';
+import 'pages/profile_page.dart';
+import 'pages/edit_profile_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,6 +67,16 @@ class _MyAppState extends State<MyApp> {
         '/tentang': (context) => const TentangAplikasiPage(),
         '/faq': (context) => const BantuanFaqPage(),
         '/tambahkota': (context) => const TambahKotaPage(),
+        '/login': (context) => const LoginPage(),
+        '/profile': (context) => ProfilePage(
+              name: '',
+              email: '',
+              password: '',
+            ),
+        '/edit_profile': (context) => EditProfilePage(
+              userName: '',
+              email: '',
+            ),
       },
     );
   }
